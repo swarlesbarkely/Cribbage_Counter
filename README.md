@@ -6,5 +6,4 @@ Counts points in a given hand of Cribbage where:
 * 15s = 2 pts / combination that sums to 15
 
 ** Not yet implemented
-* Knobs
 * Double runs
