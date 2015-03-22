@@ -12,11 +12,6 @@
 #include "clear_stdin.h"
 #include "convert_face_cards.h"
 
-char score_from_15s = 0;
-char score_from_runs = 0;
-char score_from_pairs = 0; // Integrate w/ count15s
-char score_from_flushes = 0;
-
 
 typedef struct
 {
@@ -26,6 +21,17 @@ typedef struct
 } card_attributes;
 
 card_attributes hand;
+
+typedef struct
+{
+  char fifteens;
+  char runs;
+  char pairs;
+  char flushes;
+  char knobs;
+} score_types;
+
+score_types score = {0, 0, 0, 0, 0};
 
 
 char get_suit (void)
@@ -60,7 +66,7 @@ void arrange_ascending (void)
 
   for (i = 0; i < 5; i++) {
 
-      for (x = 1; i < (5 - i); i++) {
+      for (x = 1; x < (5 - i); x++) {
 
 	  if (hand.face_values [i] > hand.face_values [i+x]) {
 
@@ -105,6 +111,36 @@ void get_hand_attributes (void)
     }
 }
 
+void print_hand (void)
+/**************************
+ * Prints contents of entered hand
+ **************************/
+{
+  char i = 0; // Counting var
+
+  printf ("*************************************************\n");
+
+  for (i = 0; i < 5; i++) {
+      switch (hand.face_values [i]) { // Looking for face card values to convert to letters for display --> ex. replace 13 (king) with K
+	case 11: printf ("\tJ"); continue;
+	case 12: printf ("\tQ"); continue;
+	case 13: printf ("\tK"); continue;
+	case 1: printf ("\tA"); continue;
+	default: break;
+      }
+
+      printf ("\t%d", hand.face_values [i]);
+  }
+
+
+  printf ("\n");
+  for (i = 0; i < 5; i++) printf ("\t%c", hand.suits [i]);
+
+  printf ("\n*************************************************\n");
+
+  return;
+}
+
 void count_15s_pairs (void)
 /***********************************
  * Goes through each 2, 3, 4, and 5 card combinations and sees if they add up to 15
@@ -121,18 +157,18 @@ void count_15s_pairs (void)
     {
       for (counter2 = 1; counter2 < stop_counter; counter2++)
 	{
-	  if (hand.count_values[i] + hand.count_values[counter2] == 15) score_from_15s += 3; // Combinations of 2 (10 of them)
-	  else if (hand.count_values[i] == hand.count_values[counter2]) score_from_pairs += 2; // Counts pairs (else if is used since 2 cards that add up to 15 cannot be the same)
+	  if (hand.count_values[i] + hand.count_values[i + counter2] == 15) score.fifteens += 2; // Combinations of 2 (10 of them)
+	  else if (hand.face_values[i] == hand.face_values[i + counter2]) score.pairs += 2; // Counts pairs (else if is used since 2 cards that add up to 15 cannot be the same)
 
 	  for (counter3 = 1; counter3 < (stop_counter-1); counter3++)
 	    {
 	      if (counter2+counter3+i > 4) continue; // Prevents counting past end of card array
-	      if (hand.count_values[i] + hand.count_values[counter2] + hand.count_values[counter2+counter3] == 15) score_from_15s += 3; // Combinations of 3 (10 of them)
+	      if (hand.count_values[i] + hand.count_values[counter2] + hand.count_values[counter2+counter3] == 15) score.fifteens += 2; // Combinations of 3 (10 of them)
 
 	      for (counter4 = 1; counter4 < (stop_counter-2); counter4++)
 		{
 		  if (counter2+counter3+counter4+i > 4) continue; // Prevents counting past end of card array
-		  if (hand.count_values[0] + hand.count_values[counter2] + hand.count_values[counter2+counter3] + hand.count_values[counter2+counter3+counter4] == 15) score_from_15s += 3; // Combinations of 4 (5 of them)
+		  if (hand.count_values[i] + hand.count_values[i + counter2] + hand.count_values[i+counter2+counter3] + hand.count_values[i+counter2+counter3+counter4] == 15) score.fifteens += 2; // Combinations of 4 (5 of them)
 		}
 	    }
 	}
@@ -142,7 +178,7 @@ void count_15s_pairs (void)
     }
 
   for (i = 0; i < 5; i++) sum += hand.count_values[i]; // Counts all cards together
-  if (sum == 15) score_from_15s += 3;
+  if (sum == 15) score.fifteens += 2;
 }
 
 void count_runs (void)
@@ -151,25 +187,25 @@ void count_runs (void)
  *****************************/
 {
   if ((hand.face_values [0] + 1) == hand.face_values [1] && (hand.face_values [1] + 1) == hand.face_values [2]) { // Looks for runs starting with lowest valued card
-      score_from_runs = 3;
+      score.runs = 3;
       if ((hand.face_values [2] + 1) == hand.face_values [3]) { // Looks for run of 4
-	  score_from_runs = 4;
+	  score.runs = 4;
 	  if ((hand.face_values [3] + 1) == hand.face_values [4]) { // Looks for run of 5
-	      score_from_runs = 5;
+	      score.runs = 5;
 	      return;
 	  }
       }
   }
 
   else if ((hand.face_values [1] + 1) == hand.face_values [2] && (hand.face_values [2] + 1) == hand.face_values [3]) { // Looks for runs starting with second lowest valued card
-      score_from_runs = 3;
+      score.runs = 3;
       if ((hand.face_values [3] + 1) == hand.face_values [4]) {  // Looks for run of 4; Run of 5 not possible
-	  score_from_runs = 4;
+	  score.runs = 4;
 	  return;
       }
   }
 
-  else if ((hand.face_values [2] + 1) == hand.face_values [3] && (hand.face_values [3] + 1) == hand.face_values [4]) score_from_runs = 3; // Last possible run of 3
+  else if ((hand.face_values [2] + 1) == hand.face_values [3] && (hand.face_values [3] + 1) == hand.face_values [4]) score.runs = 3; // Last possible run of 3
 
   return;
 }
@@ -180,37 +216,50 @@ void count_flush (void)
  **********************/
 {
   if (hand.suits[0] == hand.suits[1] && hand.suits[1] == hand.suits[2] && hand.suits[2] == hand.suits[3]) { // Checks for flush in dealt hand
-      score_from_flushes += 4;
-      if (hand.suits[0] == hand.suits[4]) score_from_flushes++; // Checks for 5 card flush w/ cut card
+      score.flushes += 4;
+      if (hand.suits[0] == hand.suits[4]) score.flushes++; // Checks for 5 card flush w/ cut card
   }
+}
+
+void count_knobs (void)
+/**************************
+ * Checks for knobs
+ **************************/
+{
+  char i = 0; // Counting var
+
+  for (i = 0; i < 4; i++) { // Go through first 4 cards and search for Jacks
+      if (hand.face_values [i] == 11) { // If Jack is found, compare its suit to the cut card
+	  if (hand.suits [i] == hand.suits [4]) score.knobs ++;
+      }
+  }
+
+  return;
 }
 
 int main (void)
 {
-  char i = 0;
+  char sum = 0;
+  char i = 0; // Counting var
+
   get_hand_attributes ();
+  print_hand ();
+  count_knobs (); // Must be run before arrange_ascending in order to keep track of cut card
   arrange_ascending ();
   count_15s_pairs ();
   count_runs ();
   count_flush ();
 
-  for (i = 0; i < 5; i++) {
-      switch (hand.face_values [i]) { // Looking for face card values to convert to letters for display --> ex. replace 13 (king) with K
-	case 11: printf ("\tJ"); continue;
-	case 12: printf ("\tQ"); continue;
-	case 13: printf ("\tK"); continue;
-	case 1: printf ("\tA"); continue;
-	default: break;
-      }
 
-      printf ("\t%d", hand.face_values [i]);
-  }
-  printf ("\n");
-  for (i = 0; i < 5; i++) printf ("\t%c", hand.suits [i]);
+  printf ("\n\nScore from 15s: %d\n", score.fifteens);
+  printf ("\nScore from pairs: %d\n", score.pairs);
+  printf ("\nScore from runs: %d\n", score.runs);
+  printf ("\nScore from flushes: %d\n", score.flushes);
+  printf ("\nScore from knobs: %d\n", score.knobs);
 
-  printf ("\n\nScore from 15s: %d\n", score_from_15s);
-  printf ("\nScore from runs: %d\n", score_from_runs);
-  printf ("\nScore from flushes: %d\n", score_from_flushes);
+  sum = score.fifteens + score.runs + score.flushes + score.knobs + score.pairs;
+
+  printf ("\nTOTAL POINTS: %d", sum);
 
   return 0;
 }
