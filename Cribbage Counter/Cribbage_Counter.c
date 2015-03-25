@@ -163,7 +163,7 @@ void count_15s_pairs (void)
 	  for (counter3 = 1; counter3 < (stop_counter-1); counter3++)
 	    {
 	      if (counter2+counter3+i > 4) continue; // Prevents counting past end of card array
-	      if (hand.count_values[i] + hand.count_values[counter2] + hand.count_values[counter2+counter3] == 15) score.fifteens += 2; // Combinations of 3 (10 of them)
+	      if (hand.count_values[i] + hand.count_values[i+counter2] + hand.count_values[i+counter2+counter3] == 15) score.fifteens += 2; // Combinations of 3 (10 of them)
 
 	      for (counter4 = 1; counter4 < (stop_counter-2); counter4++)
 		{
@@ -259,7 +259,7 @@ int main (void)
 
   sum = score.fifteens + score.runs + score.flushes + score.knobs + score.pairs;
 
-  printf ("\nTOTAL POINTS: %d", sum);
+  printf ("\nTOTAL POINTS: %d\n", sum);
 
   return 0;
 }
