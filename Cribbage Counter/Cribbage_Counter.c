@@ -186,28 +186,66 @@ void count_runs (void)
  * Counts runs of 3, 4, and 5 -- arrange_ascending called to simplify this function
  *****************************/
 {
-  if ((hand.face_values [0] + 1) == hand.face_values [1] && (hand.face_values [1] + 1) == hand.face_values [2]) { // Looks for runs starting with lowest valued card
-      score.runs = 3;
-      if ((hand.face_values [2] + 1) == hand.face_values [3]) { // Looks for run of 4
-	  score.runs = 4;
-	  if ((hand.face_values [3] + 1) == hand.face_values [4]) { // Looks for run of 5
-	      score.runs = 5;
-	      return;
-	  }
-      }
-  }
+    // Check for double runs that aren't checked for later
+    if (((hand.face_values [0] + 1) == hand.face_values [1] && hand.face_values [1] == hand.face_values [2] && (hand.face_values [2] + 1) == hand.face_values [3])
+            || ((hand.face_values [1] + 1) == hand.face_values [2] && hand.face_values [2] == hand.face_values [3] && (hand.face_values [3] + 1) == hand.face_values [4])) {
 
-  else if ((hand.face_values [1] + 1) == hand.face_values [2] && (hand.face_values [2] + 1) == hand.face_values [3]) { // Looks for runs starting with second lowest valued card
-      score.runs = 3;
-      if ((hand.face_values [3] + 1) == hand.face_values [4]) {  // Looks for run of 4; Run of 5 not possible
-	  score.runs = 4;
-	  return;
-      }
-  }
+        score.runs = 6;
+        return;
+    }
 
-  else if ((hand.face_values [2] + 1) == hand.face_values [3] && (hand.face_values [3] + 1) == hand.face_values [4]) score.runs = 3; // Last possible run of 3
+    else if ((hand.face_values [0] + 1) == hand.face_values [1] && (hand.face_values [1] + 1) == hand.face_values [2]) { // Looks for runs starting with lowest valued card
+        score.runs = 3;
 
-  return;
+        if ((hand.face_values [2] + 1) == hand.face_values [3]) { // Looks for run of 4
+            score.runs = 4;
+
+            if ((hand.face_values [3] + 1) == hand.face_values [4]) { // Looks for run of 5
+                score.runs = 5;
+                return;
+            }
+
+            else if (hand.face_values [3] == hand.face_values [4]) {    // Check for double runs
+                score.runs = 8;
+                return;
+            }
+        }
+
+        else if (hand.face_values [2] == hand.face_values [3]) {    // Check for double runs
+            score.runs = 6;
+
+            if ((hand.face_values [3] + 1) == hand.face_values [4]) {
+                score.runs = 8;
+                return;
+            }
+
+            else if (hand.face_values [3] == hand.face_values [4]) {
+                score.runs = 9;
+                return;
+            }
+        }
+    }
+
+    else if ((hand.face_values [1] + 1) == hand.face_values [2] && (hand.face_values [2] + 1) == hand.face_values [3]) { // Looks for runs starting with second lowest valued card
+        score.runs = 3;
+
+        if ((hand.face_values [3] + 1) == hand.face_values [4]) {  // Looks for run of 4; Run of 5 not possible
+            score.runs = 4;
+            return;
+        }
+
+        else if (hand.face_values[0] == hand.face_values[1] || hand.face_values[3] == hand.face_values[4]) {    // Check for double runs
+            score.runs = 6;
+            return;
+        }
+    }
+
+    else if ((hand.face_values [2] + 1) == hand.face_values [3] && (hand.face_values [3] + 1) == hand.face_values [4]) {    // Last possible run of 3
+        score.runs = 3;
+        if (hand.face_values[1] == hand.face_values[2]) score.runs = 6; // Check for double runs
+    }
+
+    return;
 }
 
 void count_flush (void)
