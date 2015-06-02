@@ -7,21 +7,10 @@ class QComboBox;
 class QListWidget;
 class QString;
 
-enum
+enum BOOL
 {
-    card1,
-    card2,
-    card3,
-    card4,
-    cut_card,
-};
-
-enum
-{
-    hearts,
-    diamonds,
-    spades,
-    clubs
+    FALSE,
+    TRUE
 };
 
 enum
@@ -82,7 +71,7 @@ public:
     QListWidget *listWidgetScores;
 
     void count_knobs (void);
-    void count_15s_pairs_runs (void);
+    void count_15s_pairs (void);
     void count_runs (void);
     void count_flush (void);
     void get_hand_attributes (void);
