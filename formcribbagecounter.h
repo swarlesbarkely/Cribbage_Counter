@@ -7,11 +7,10 @@ class QComboBox;
 class QListWidget;
 class QString;
 
-enum BOOL
-{
-    FALSE,
-    TRUE
-};
+#define FALSE   0
+#define TRUE    (!(FALSE))
+
+#define NUMBER_OF_CARDS 5
 
 enum
 {
@@ -33,6 +32,25 @@ enum
     SUIT_COUNT
 };
 
+typedef struct
+{
+  unsigned char face_values [5];
+  unsigned char count_values [5];
+  unsigned char suits [5];
+
+} card_attributes;
+
+typedef struct
+{
+  unsigned char fifteens;
+  unsigned char runs;
+  unsigned char pairs;
+  unsigned char flushes;
+  unsigned char knobs;
+  unsigned char total;
+
+} score_types;
+
 namespace Ui {
 class FormCribbageCounter;
 }
@@ -45,24 +63,7 @@ public:
     explicit FormCribbageCounter(QWidget *parent = 0);
     ~FormCribbageCounter();
 
-    typedef struct
-    {
-      unsigned char face_values [5];
-      unsigned char count_values [5];
-      unsigned char suits [5];
-    } card_attributes;
-
     card_attributes hand;
-
-    typedef struct
-    {
-      unsigned char fifteens;
-      unsigned char runs;
-      unsigned char pairs;
-      unsigned char flushes;
-      unsigned char knobs;
-      unsigned char total;
-    } score_types;
 
     score_types score;
 

@@ -5,3 +5,5 @@ Counts points in a given hand of Cribbage where:
 * Flush = 1 pt / card (min. 4)
 * 15s = 2 pts / combination that sums to 15
 * Knobs = 1 pt
+* 
+* Powered by Qt Creator

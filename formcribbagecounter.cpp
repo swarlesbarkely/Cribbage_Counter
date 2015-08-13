@@ -76,7 +76,7 @@ void FormCribbageCounter::get_hand_attributes (void)
 {
     unsigned char byIndex;
 
-    for (byIndex = 0; byIndex < VALUE_COUNT; byIndex++)
+    for (byIndex = 0; byIndex < VALUE_COUNT; ++byIndex)
     {
         hand.face_values[byIndex] = comboBoxValues[byIndex]->currentIndex() + 1;    // Current Index + 1 will return 1-13
         hand.suits[byIndex] = comboBoxSuits[byIndex]->currentIndex();   // Current Index will return 0-3 --> actual suit doesn't matter, only whether or not they are the same
@@ -87,7 +87,10 @@ void FormCribbageCounter::get_hand_attributes (void)
             hand.count_values[byIndex] = hand.face_values[byIndex];
         }
 
-        else hand.count_values[byIndex] = 10;   // Face Cards
+        else
+        {
+            hand.count_values[byIndex] = 10;   // Face Cards
+        }
     }
 }
 
@@ -100,9 +103,9 @@ void FormCribbageCounter::arrange_ascending (void)
     unsigned char  x;
     unsigned char  temp = 0;
 
-    for (i = 0; i < 5; i++) {
-
-        for (x = 1; x < (5 - i); x++)
+    for (i = 0; i < NUMBER_OF_CARDS; ++i)
+    {
+        for (x = 1; x < (NUMBER_OF_CARDS - i); ++x)
         {
             if (hand.face_values [i] > hand.face_values [i+x])
             {
@@ -129,12 +132,12 @@ void FormCribbageCounter::count_15s_pairs (void)
     unsigned char  i;
     unsigned char  sum = 0;
 
-    stop_counter = 5;
+    stop_counter = NUMBER_OF_CARDS;
 
 
-    for (i = 0; i < 5; i++)
+    for (i = 0; i < NUMBER_OF_CARDS; ++i)
     {
-        for (counter2 = 1; counter2 < stop_counter; counter2++)
+        for (counter2 = 1; counter2 < stop_counter; ++counter2)
         {
             if (hand.count_values[i] + hand.count_values[i + counter2] == 15)   // Combinations of 2 (10 of them)
             {
@@ -146,26 +149,26 @@ void FormCribbageCounter::count_15s_pairs (void)
                 score.pairs += 2;
             }
 
-            for (counter3 = 1; counter3 < (stop_counter-1); counter3++)
+            for (counter3 = 1; counter3 < (stop_counter-1); ++counter3)
             {
-                if (counter2+counter3+i > 4)
+                if ((counter2 + counter3 + i) > 4)
                 {
                     continue; // Prevents counting past end of card array
                 }
 
-                if (hand.count_values[i] + hand.count_values[i+counter2] + hand.count_values[i+counter2+counter3] == 15) // Combinations of 3 (10 of them)
+                if ((hand.count_values[i] + hand.count_values[i+counter2] + hand.count_values[i+counter2+counter3]) == 15) // Combinations of 3 (10 of them)
                 {
                     score.fifteens += 2;
                 }
 
-                for (counter4 = 1; counter4 < (stop_counter-2); counter4++)
+                for (counter4 = 1; counter4 < (stop_counter-2); ++counter4)
                 {
-                    if (counter2+counter3+counter4+i > 4)
+                    if ((counter2+counter3+counter4+i) > 4)
                     {
                         continue; // Prevents counting past end of card array
                     }
 
-                    if (hand.count_values[i] + hand.count_values[i + counter2] + hand.count_values[i+counter2+counter3] + hand.count_values[i+counter2+counter3+counter4] == 15) // Combinations of 4 (5 of them)
+                    if ((hand.count_values[i] + hand.count_values[i + counter2] + hand.count_values[i+counter2+counter3] + hand.count_values[i+counter2+counter3+counter4]) == 15) // Combinations of 4 (5 of them)
                     {
                         score.fifteens += 2;
                     }
@@ -173,12 +176,18 @@ void FormCribbageCounter::count_15s_pairs (void)
             }
         }
 
-        stop_counter--;
+        --stop_counter;
 
     }
 
-    for (i = 0; i < 5; i++) sum += hand.count_values[i]; // Counts all cards together
-    if (sum == 15) score.fifteens += 2;
+    for (i = 0; i < NUMBER_OF_CARDS; i++)
+    {
+        sum += hand.count_values[i]; // Counts all cards together
+    }
+    if (sum == 15)
+    {
+        score.fifteens += 2;
+    }
 }
 
 void FormCribbageCounter::count_runs (void)
@@ -186,45 +195,46 @@ void FormCribbageCounter::count_runs (void)
  * Counts runs of 3, 4, and 5 -- arrange_ascending called to simplify this function
  *********************************************************************************/
 {
-    unsigned char  byStartingCard = 0;
-    unsigned char  byMultiplier;
-    unsigned char  byIndex;
-    unsigned char  byCurrentRun;
+    unsigned char  starting_card = 0;
+    unsigned char  multiplier;
+    unsigned char  index;             // Used to keep track of next card to look at
+    unsigned char  current_run;
 
-    for (byStartingCard = 0; byStartingCard <= 3; byStartingCard++)
+    for (starting_card = 0; starting_card < 3; ++starting_card)
     {
-        byMultiplier = 1;
-        byIndex = 1;
-        byCurrentRun = 1;
+        multiplier = 1;
+        index = 1;
+        current_run = 1;
 
-        while (TRUE)
+        while (TRUE)    // Don't worry, we'll break out when appropriate
         {
-            if (hand.face_values[byStartingCard] + byCurrentRun == hand.face_values[byStartingCard + byIndex])
+            if (hand.face_values[starting_card] + current_run == hand.face_values[starting_card + index])
             {
-                byCurrentRun++;
-                byIndex++;
+                ++current_run;
+                ++index;
             }
 
-            else if (hand.face_values[byStartingCard + byCurrentRun - 1] == hand.face_values[byStartingCard + byIndex])
+            else if (hand.face_values[starting_card + current_run - 1] == hand.face_values[starting_card + index])
             {
-                byMultiplier++;
-                byIndex++;
+                ++multiplier;
+                ++index;
             }
 
             else
             {
-                if (hand.face_values[byStartingCard + byIndex] == hand.face_values[byStartingCard + byIndex - 1])
+                if (hand.face_values[starting_card + index] == hand.face_values[starting_card + index - 1])
                 {
-                    byMultiplier *= 2;
+                    multiplier *= 2;
                 }
 
                 break;
             }
         }
 
-        if (byCurrentRun >= 3)
+        if (current_run >= 3)
         {
-            score.runs = (byCurrentRun*byMultiplier);
+            // A valid run was found -- done
+            score.runs = (current_run*multiplier);
             return;
         }
     }
@@ -238,13 +248,15 @@ void FormCribbageCounter::count_flush (void)
  * Finds if current hand contains a flush
 *******************************************************/
 {
-    if (hand.suits[0] == hand.suits[1] && hand.suits[1] == hand.suits[2] && hand.suits[2] == hand.suits[3]) // Checks for flush in dealt hand
+    if ((hand.suits[0] == hand.suits[1]) &&
+        (hand.suits[1] == hand.suits[2]) &&
+        (hand.suits[2] == hand.suits[3]))    // Checks for flush in dealt hand
     {
-        score.flushes += 4;
+        score.flushes = 4;
 
         if (hand.suits[0] == hand.suits[4])  // Checks for 5 card flush w/ cut card
         {
-            score.flushes++;
+            score.flushes = 5;
         }
     }
 }
